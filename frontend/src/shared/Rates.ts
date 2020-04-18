@@ -1,6 +1,6 @@
 export interface UnitRate {
-    rate: number;
-    timestamp: string;
+  rate: number;
+  timestamp: string;
 }
 
 // export interface Rates {

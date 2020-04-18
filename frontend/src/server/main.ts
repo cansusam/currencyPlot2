@@ -6,11 +6,9 @@ import { staticsRouter } from './routes/statics-router';
 
 const app = express();
 app.set('view engine', 'ejs');
-
 app.use('/assets', express.static(path.join(process.cwd(), 'assets')));
 app.use(staticsRouter());
 app.use(pagesRouter());
-
 app.listen(config.SERVER_PORT, () => {
   console.log(`App listening on port ${config.SERVER_PORT}!`);
 });

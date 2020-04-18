@@ -7,10 +7,7 @@ import { Link } from 'react-router-dom';
 export const Header: React.FunctionComponent = () => (
   <AppBar position='static' color='default'>
     <Toolbar>
-      <Button
-        color='primary'
-        component={(p: any) => <Link to='/finApp' {...p} />}
-      >
+      <Button color='primary' component={(p: any) => <Link to='/finApp' {...p} />}>
         FinApp
       </Button>
     </Toolbar>
