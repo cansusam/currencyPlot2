@@ -1,18 +1,10 @@
-import axios from 'axios';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardHeader from '@material-ui/core/CardHeader';
 import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import * as React from 'react';
-import { NavLink, Route } from 'react-router-dom';
 import { Line, ChartData } from 'react-chartjs-2';
 import * as chartjs from 'chart.js';
 import { UnitRate } from '../../shared/Rates';
 import { getRates } from '../utils/api-facade';
 import {
-  Typography,
   Button,
   FormControl,
   InputLabel,
@@ -22,14 +14,21 @@ import {
   TableCell,
   Table,
   TableHead,
+  Paper,
 } from '@material-ui/core';
+import TableContainer from '@material-ui/core/TableContainer';
+import TablePagination from '@material-ui/core/TablePagination';
 import { Currencylist, InstanceNumberList } from '../utils/Structures';
 interface IState {
   data: UnitRate[];
   selectedRate: string;
   dataset?: ChartData<chartjs.ChartData>;
   instanceNumber: number;
+  rowsPerPage: number;
+  page: number;
 }
+
+const ROWS_PER_PAGE = [5, 10, 25, 100];
 
 export class FinApp extends React.Component<any, IState> {
   isMounted = false;
@@ -39,6 +38,8 @@ export class FinApp extends React.Component<any, IState> {
       data: [] as UnitRate[],
       selectedRate: Currencylist[0],
       instanceNumber: InstanceNumberList[0],
+      rowsPerPage: ROWS_PER_PAGE[0],
+      page: 0,
     };
   }
 
@@ -68,7 +69,7 @@ export class FinApp extends React.Component<any, IState> {
     const timeLabels: string[][] = [];
     if (this.state.data) {
       this.state.data.forEach((e, index) => {
-        if (index < this.state.instanceNumber) {
+        if (index > this.state.data.length - this.state.instanceNumber - 1) {
           dataPoints.push(e.rate);
           timeLabels.push([e.timestamp]);
         } else {
@@ -91,9 +92,19 @@ export class FinApp extends React.Component<any, IState> {
       },
     });
   }
-
+  
   public render() {
     const list = [];
+    const handleChangePage = (event: unknown, newPage: number) => {
+      this.setState({ page: newPage });
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+      this.setState({ page: 0, rowsPerPage: +event.target.value });
+    };
+
+    const { page, rowsPerPage } = this.state;
+
     return (
       <div>
         <Grid container spacing={24} style={{ padding: '20px' }}>
@@ -135,10 +146,10 @@ export class FinApp extends React.Component<any, IState> {
             </Grid>
           </Grid>
           <Grid container xs={12} style={{ padding: '20px' }}>
-            <Grid item xs={6}>
+            <Grid item xs={6} style={{height: '20px'}}>
               {this.state.data !== undefined
                 ? this.state.data.forEach((k, index) => {
-                    if (index > this.state.data.length - 5) {
+                    if (index > this.state.data.length - this.state.instanceNumber - 1) {
                       list.push(
                         <TableRow>
                           <TableCell>{k.rate}</TableCell>
@@ -149,13 +160,26 @@ export class FinApp extends React.Component<any, IState> {
                   })
                 : null}
               {this.state.data !== undefined ? (
-                <Table>
-                  <TableHead>
-                    <TableCell>Rate</TableCell>
-                    <TableCell>Currency</TableCell>
-                  </TableHead>
-                  {list.reverse()}
-                </Table>
+                <Paper>
+                <TableContainer>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableCell>Rate</TableCell>
+                      <TableCell>Date</TableCell>
+                    </TableHead>
+                    {list.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).reverse()}
+                    </Table>
+                </TableContainer>
+                <TablePagination
+                rowsPerPageOptions={ROWS_PER_PAGE}
+                component="div"
+                count={this.state.instanceNumber}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+                  />
+                  </Paper>
               ) : null}
             </Grid>
             <Grid item xs={6}>
