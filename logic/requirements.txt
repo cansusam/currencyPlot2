@@ -1,4 +1,4 @@
-requests==2.22.0
+requests==2.31.0
 Flask==2.2.5
 Flask_Cors==3.0.8
 apscheduler==3.6.3
